@@ -69,8 +69,9 @@
                 {{- else if hasPrefix site.Params.label.iconSVG "<svg" }}
                     {{ site.Params.label.iconSVG | safeHTML }}
                 {{- end -}}
-<!--                     hide text next to logo -->
-<!--                 {{- $label_text -}} -->
+                {{- if not site.Params.hideLabelText }}
+                  {{- $label_text -}}
+                {{- end }}
             </a>
             {{- end }}
             <div class="logo-switches">
