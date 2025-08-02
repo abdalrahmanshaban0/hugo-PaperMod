@@ -4,7 +4,11 @@
         {{- if site.Copyright }}
         <span>{{ site.Copyright | markdownify }}</span>
         {{- else }}
-        <span>&copy; {{ now.Year }} <a href="{{ "" | absLangURL }}">{{ site.Title }}</a></span>
+
+        <span>&copy; {{ now.Year }} <a href="{{ "" | absLangURL }}">SudoStart</a> · 
+        <a href="{{ "privacy" | relURL }}">Privacy Policy</a> | 
+        <a href="{{ "terms" | relURL }}">Terms & Conditions</a></span>
+
         {{- end }}
         <!-- {{- print " · "}} -->
     {{- end }}
