@@ -1,5 +1,11 @@
 {{ define "main" }}
 <div class="aboutme">
   {{ partial "index_profile.html" . }}
+  
+  {{ with .Site.GetPage "aboutme.md" }}
+  <div class="post-content">
+    {{ .Content }}
+  </div>
+  {{ end }}
 </div>
 {{ end }}
