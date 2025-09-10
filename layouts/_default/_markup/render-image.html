@@ -1,46 +1,22 @@
 {{- $u := urls.Parse .Destination -}}
 {{- $src := $u.String -}}
-{{- $img := "" -}}
-
 {{- if not $u.IsAbs -}}
   {{- $path := strings.TrimPrefix "./" $u.Path }}
-  {{- $img = .Page.Resources.GetMatch $path -}}
+  {{- with or (.PageInner.Resources.Get $path) (resources.Get $path) -}}
+    {{- $src = .RelPermalink -}}
+    {{- with $u.RawQuery -}}
+      {{- $src = printf "%s?%s" $src . -}}
+    {{- end -}}
+    {{- with $u.Fragment -}}
+      {{- $src = printf "%s#%s" $src . -}}
+    {{- end -}}
+  {{- end -}}
 {{- end -}}
-
-{{- $responsiveImages := (.Page.Params.responsiveImages | default site.Params.responsiveImages) | default true }}
-{{- $prod := (hugo.IsProduction | or (eq site.Params.env "production")) }}
-{{- $sizes := (slice "360" "480" "720" "1080" "1500") }}
-{{- $processableFormats := (slice "jpg" "jpeg" "png" "tif" "bmp" "gif" "webp") }}
-
-{{- if and $img (in $processableFormats $img.MediaType.SubType) $responsiveImages $prod }}
-  <img
-    src="{{ $img.RelPermalink }}"
-    srcset='{{- range $size := $sizes -}}
-              {{- if ge $img.Width (int $size) -}}
-                {{- printf "%s %sw, " (($img.Resize (printf "%sx" $size)).RelPermalink) $size -}}
-              {{- end -}}
-            {{- end -}}{{ printf "%s %dw" $img.RelPermalink $img.Width }}'
-    sizes="(min-width: 768px) 720px, 100vw"
-    width="{{ $img.Width }}"
-    height="{{ $img.Height }}"
-    alt="{{ .Text }}"
-    title="{{ .Title | default .Text }}"
-    loading="lazy"
-  >
-{{- else if $img }}
-  <img
-    src="{{ $img.RelPermalink }}"
-    width="{{ $img.Width }}"
-    height="{{ $img.Height }}"
-    alt="{{ .Text }}"
-    title="{{ .Title | default .Text }}"
-    loading="lazy"
-  >
-{{- else }}
-  <img
-    src="{{ $src }}"
-    alt="{{ .Text }}"
-    title="{{ .Title | default .Text }}"
-    loading="lazy"
-  >
-{{- end }}
+{{- $attributes := merge .Attributes (dict "alt" .Text "src" $src "title" (.Title | transform.HTMLEscape) "loading" "lazy") -}}
+<img
+  {{- range $k, $v := $attributes -}}
+    {{- if $v -}}
+      {{- printf " %s=%q" $k $v | safeHTMLAttr -}}
+    {{- end -}}
+  {{- end -}}>
+{{- /**/ -}}
